@@ -10,7 +10,7 @@ import (
 
 func main() {
 	fmt.Println("hello word")
-	godotenv.Load(".env") //go loads the envirement varibles
+	godotenv.Load() //go loads the envirement varibles
 	// os.Getenv  build function (expored package)
 	portString := os.Getenv("PORT")
 	if portString == "" {
