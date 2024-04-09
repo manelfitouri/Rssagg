@@ -78,7 +78,7 @@ Add a handler for `GET /v1/readiness` requests. It should return a `200` status 
 {
   "status": "ok"
 }
-
+```
 
 ## 7. Add an error handler
 
