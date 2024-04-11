@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/manelfitouri/Rssagg/internal/auth"
 	"github.com/manelfitouri/Rssagg/internal/database"
 )
 
@@ -28,9 +29,25 @@ func (cfg *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request)
 		Name:      params.Name,
 	})
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Couldn't create user")
+		respondWithError(w, 400, "Couldn't create user")
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, databaseUserToUser(user))
+	respondWithJSON(w, 201, databaseUserToUser(user))
+}
+
+func (cfg *apiConfig) handlerUsersGet(w http.ResponseWriter, r *http.Request) {
+	apiKey, err := auth.GetAPIKey(r.Header)
+	if err != nil {
+		respondWithError(w, 403, "Couldn't find api key")
+		return
+	}
+
+	user, err := cfg.DB.GetUserByAPIKey(r.Context(), apiKey)
+	if err != nil {
+		respondWithError(w, 400, "Couldn't get user")
+		return
+	}
+
+	respondWithJSON(w, 200, databaseUserToUser(user))
 }
