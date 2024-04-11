@@ -9,6 +9,7 @@ import (
 	"github.com/go-chi/chi/v5" //import packages to spin up the server
 	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
+
 	"github.com/manelfitouri/Rssagg/internal/database"
 
 	_ "github.com/lib/pq"
@@ -19,32 +20,30 @@ type apiConfig struct {
 }
 
 func main() {
+	godotenv.Load(".env")
 
-	godotenv.Load() //go loads the envirement varibles
-	// os.Getenv  build function (expored package)
-	portString := os.Getenv("PORT")
-	if portString == "" {
-		//log.Fatal will exit the prog with code 1 and a msg
-		log.Fatal("PORT is not found in the env")
+	port := os.Getenv("PORT")
+	if port == "" {
+		log.Fatal("PORT environment variable is not set")
 	}
 
-	dbURL := os.Getenv("DB_URL")
+	dbURL := os.Getenv("DATABASE_URL")
 	if dbURL == "" {
-		//log.Fatal will exit the prog with code 1 and a msg
-		log.Fatal("dbuURL is not found in the env")
+		log.Fatal("DATABASE_URL environment variable is not set")
 	}
 
 	db, err := sql.Open("postgres", dbURL)
 	if err != nil {
-		log.Fatal("can't connect to database:", err)
+		log.Fatal(err)
 	}
+	dbQueries := database.New(db)
 
 	apiCfg := apiConfig{
 		DB: dbQueries,
 	}
 
-	router := chi.NewRouter() //create a new router object
-	//allow requests to the server from browser
+	router := chi.NewRouter()
+
 	router.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
@@ -53,21 +52,20 @@ func main() {
 		AllowCredentials: false,
 		MaxAge:           300,
 	}))
-	//hook up the httphandler with a specific method and path
+
 	v1Router := chi.NewRouter()
+
+	v1Router.Post("/users", apiCfg.handlerUsersCreate)
+
 	v1Router.Get("/healthz", handlerReadiness)
 	v1Router.Get("/err", handlerErr)
 
 	router.Mount("/v1", v1Router)
-
-	srv := &http.Server{ //connect the router to http server
+	srv := &http.Server{
+		Addr:    ":" + port,
 		Handler: router,
-		Addr:    ":" + portString,
-	}
-	log.Printf("server stating on port %v", portString)
-	err := srv.ListenAndServe() //handling http request or code will block
-	if err != nil {
-		log.Fatal(err)
 	}
 
+	log.Printf("Serving on port: %s\n", port)
+	log.Fatal(srv.ListenAndServe())
 }
