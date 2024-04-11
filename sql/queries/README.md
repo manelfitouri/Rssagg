@@ -136,6 +136,7 @@ Example body:
 {
   "name": "manel"
 }
+```
 Example response:
 
 ```json
