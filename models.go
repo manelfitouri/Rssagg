@@ -26,3 +26,31 @@ func databaseUserToUser(user database.User) User {
 		ApiKey:    user.ApiKey,    // Copie la clé API de l'utilisateur de la base de données
 	}
 }
+
+type feed struct {
+	ID        uuid.UUID `json:"id"`         // ID est l'identifiant unique de l'utilisateur
+	CreatedAt time.Time `json:"created_at"` // CreatedAt est la date et l'heure de création de l'utilisateur
+	UpdatedAt time.Time `json:"updated_at"` // UpdatedAt est la date et l'heure de la dernière mise à jour de l'utilisateur
+	Name      string    `json:"name"`       // Name est le nom de l'utilisateur
+	ApiKey    string    `json:"api_key"`    // ApiKey est la clé API de l'utilisateur
+}
+
+type Feed struct {
+	ID        uuid.UUID `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	Name      string    `json:"name"`
+	Url       string    `json:"url"`
+	UserID    uuid.UUID `json:"user_id"`
+}
+
+func databaseFeedToFeed(feed database.Feed) Feed {
+	return Feed{
+		ID:        feed.ID,
+		CreatedAt: feed.CreatedAt,
+		UpdatedAt: feed.UpdatedAt,
+		Name:      feed.Name,
+		Url:       feed.Url,
+		UserID:    feed.UserID,
+	}
+}

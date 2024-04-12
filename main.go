@@ -57,8 +57,9 @@ func main() {
 
 	v1Router := chi.NewRouter() // Create a new chi router for version 1 of the API
 
-	v1Router.Post("/users", apiCfg.handlerUsersCreate) // Define a route to handle user creation requests
-	v1Router.Get("/users", apiCfg.handlerUsersGet)     // Define a route to handle user retrieval requests
+	v1Router.Post("/users", apiCfg.handlerUsersCreate)                       // Define a route to handle user creation requests
+	v1Router.Get("/users", apiCfg.middlewareAuth(apiCfg.handlerUsersGet))    // Define a route to handle user retrieval requests
+	v1Router.Post("/feeds", apiCfg.middlewareAuth(apiCfg.handlerCreateFeed)) // Define a route to handle user retrieval requests
 
 	v1Router.Get("/healthz", handlerReadiness) // Define a route to check the health of the server
 	v1Router.Get("/err", handlerErr)           // Define a route to handle errors
